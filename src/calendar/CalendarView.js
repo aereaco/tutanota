@@ -68,6 +68,7 @@ import {showInvitationDialog} from "./CalendarInvitationDialog"
 import {loadGroupMembers} from "./CalendarSharingUtils"
 import {DrawerMenu} from "../gui/nav/DrawerMenu"
 import {size} from "../gui/size"
+import {deviceConfig} from "../misc/DeviceConfig"
 
 export const LIMIT_PAST_EVENTS_YEARS = 100
 
@@ -112,7 +113,7 @@ export class CalendarView implements CurrentView {
 		]
 
 
-		this._currentViewType = styles.isDesktopLayout() ? CalendarViewType.MONTH : CalendarViewType.AGENDA
+		this._currentViewType = deviceConfig.getDefaultCalendarView() || CalendarViewType.MONTH
 		this._loadedMonths = new Set()
 		this._eventsForDays = new Map()
 		this._hiddenCalendars = new Set()
@@ -618,7 +619,9 @@ export class CalendarView implements CurrentView {
 		if (!args.view) {
 			this._setUrl(this._currentViewType, this.selectedDate(), true)
 		} else {
-			this._currentViewType = CalendarViewTypeByValue[args.view] ? args.view : CalendarViewType.MONTH
+			this._currentViewType = CalendarViewTypeByValue[args.view]
+				? args.view
+				: (deviceConfig.getDefaultCalendarView() || CalendarViewType.MONTH)
 			const urlDateParam = args.date
 			if (urlDateParam && this._currentViewType !== CalendarViewType.AGENDA) {
 				// Unlike JS Luxon assumes local time zone when parsing and not UTC. That's what we want
